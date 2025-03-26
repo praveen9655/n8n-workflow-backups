@@ -10,17 +10,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Create Backup Folder with Date
+        run: |
+          BACKUP_DATE=$(date +'%Y-%m-%d')
+          mkdir -p backups/$BACKUP_DATE
+          echo "BACKUP_DATE=$BACKUP_DATE" >> $GITHUB_ENV
+
       - name: Fetch Workflows from n8n
         run: |
+          mkdir -p tmp_workflows
           curl -X 'GET' "https://n8n.atozserver.cfd/api/v1/workflows" \
           -H "accept: application/json" \
           -H "X-N8N-API-KEY: ${{ secrets.N8N_API_KEY }}" \
-          -o workflows.json
+          -o tmp_workflows/workflows.json
 
-      - name: git push origin main
+      - name: Split Workflows into Separate Files
+        run: |
+          BACKUP_DATE=${{ env.BACKUP_DATE }}
+          mkdir -p backups/$BACKUP_DATE
+          jq -c '.data[]' tmp_workflows/workflows.json | while read -r workflow; do
+            ID=$(echo $workflow | jq -r '.id')
+            echo $workflow | jq '.' > backups/$BACKUP_DATE/workflow_$ID.json
+          done
+          rm -rf tmp_workflows
+
+      - name: Commit and Push Backup
         run: |
           git config --global user.email "your-email@example.com"
           git config --global user.name "n8n Backup Bot"
-          git add workflows.json
-          git commit -m "Weekly n8n workflow backup - $(date +'%Y-%m-%d')" || exit 0
+          git add backups/
+          git commit -m "n8n Workflow Backup - $(date +'%Y-%m-%d')" || exit 0
           git push origin main
