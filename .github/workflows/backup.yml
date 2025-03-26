@@ -1,8 +1,10 @@
 name: Weekly n8n Workflow Backup
+
 on:
   schedule:
     - cron: "0 0 * * 0"  # Runs every Sunday at midnight UTC
   workflow_dispatch:
+
 jobs:
   backup:
     runs-on: ubuntu-latest
@@ -10,11 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Create Backup Folder with Date
-        run: |
-          BACKUP_DATE=$(date +'%Y-%m-%d')
-          mkdir -p backups/$BACKUP_DATE
-          echo "BACKUP_DATE=$BACKUP_DATE" >> $GITHUB_ENV
+      - name: Set Backup Date
+        run: echo "BACKUP_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Fetch Workflows from n8n
         run: |
@@ -30,14 +29,16 @@ jobs:
           mkdir -p backups/$BACKUP_DATE
           jq -c '.data[]' tmp_workflows/workflows.json | while read -r workflow; do
             ID=$(echo $workflow | jq -r '.id')
-            echo $workflow | jq '.' > backups/$BACKUP_DATE/workflow_$ID.json
+            NAME=$(echo $workflow | jq -r '.name' | tr ' ' '_' | tr -d '[:punct:]')  # Safe filename
+            FILENAME="workflow_${NAME}_${ID}.json"
+            echo $workflow | jq '.' > backups/$BACKUP_DATE/$FILENAME
           done
           rm -rf tmp_workflows
 
-      - name: Commit and Push Backup
+      - name: Commit and Push Changes
         run: |
           git config --global user.email "your-email@example.com"
           git config --global user.name "n8n Backup Bot"
-          git add backups/
-          git commit -m "n8n Workflow Backup - $(date +'%Y-%m-%d')" || exit 0
+          git add backups/*
+          git commit -m "Weekly n8n workflow backup - ${{ env.BACKUP_DATE }}" || exit 0
           git push origin main
