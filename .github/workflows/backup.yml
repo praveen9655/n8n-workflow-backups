@@ -2,7 +2,7 @@ name: Weekly n8n Workflow Backup
 
 on:
   schedule:
-    - cron: "0 0 * * 0"  # Runs every Sunday at midnight UTC
+    - cron: "0 0 * * 0" 
   workflow_dispatch:
 
 jobs:
