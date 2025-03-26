@@ -1,0 +1,157 @@
+{
+  "createdAt": "2025-03-24T07:31:21.683Z",
+  "updatedAt": "2025-03-25T09:14:22.749Z",
+  "id": "OmMlko8nJTLvUfJr",
+  "name": "Subworkflow 1",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "168c4a39-c37f-4231-a5c9-2b55ecb7816e",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1300,
+        -860
+      ],
+      "id": "c671e8bc-6e19-43f4-8de8-833745885edc",
+      "name": "Webhook",
+      "webhookId": "168c4a39-c37f-4231-a5c9-2b55ecb7816e"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk",
+          "mode": "list",
+          "cachedResultName": "Email_Deliverability_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "workflow-1": "={{ $json.batch }} Executed",
+            "Gmail": "={{ $json.Gmail }}"
+          },
+          "matchingColumns": [
+            "Gmail"
+          ],
+          "schema": [
+            {
+              "id": "Gmail",
+              "displayName": "Gmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "workflow-1",
+              "displayName": "workflow-1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -880,
+        -860
+      ],
+      "id": "c2c4ae73-9de4-49b2-ac3a-450aad69ec55",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "723LV9KkD9NY2Bwt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        -860
+      ],
+      "id": "05ec4964-bb09-45ca-b877-817c78c71474",
+      "name": "Split Out"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        []
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f3a66a1e-e4e6-41a9-b5b7-8edd495fe0e4",
+  "triggerCount": 1,
+  "tags": []
+}

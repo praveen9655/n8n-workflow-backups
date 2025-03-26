@@ -1,0 +1,152 @@
+{
+  "createdAt": "2025-03-24T07:56:13.065Z",
+  "updatedAt": "2025-03-25T09:14:13.923Z",
+  "id": "jYK5hC4r2Sy125NW",
+  "name": "SubWorkflow 2",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "168c4a39-c37f-4231-a5c9-2b55ecb7816e",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        100,
+        -20
+      ],
+      "id": "0948656a-1ae5-4a9c-95c1-06c7cbe8df7c",
+      "name": "Webhook",
+      "webhookId": "168c4a39-c37f-4231-a5c9-2b55ecb7816e"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk",
+          "mode": "list",
+          "cachedResultName": "Email_Deliverability_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "workflow-1": "={{ $json.batch }} Executed",
+            "Gmail": "={{ $json.Gmail }}"
+          },
+          "matchingColumns": [
+            "Gmail"
+          ],
+          "schema": [
+            {
+              "id": "Gmail",
+              "displayName": "Gmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "workflow-1",
+              "displayName": "workflow-1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        520,
+        -20
+      ],
+      "id": "0bea3b35-4804-40ba-9711-30a82999d30c",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "723LV9KkD9NY2Bwt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -20
+      ],
+      "id": "98e3985c-7916-4372-a58f-41e3bea67a43",
+      "name": "Split Out"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "7789ed39-77f4-42ee-a59b-8268ce581752",
+  "triggerCount": 1,
+  "tags": []
+}

@@ -1,0 +1,482 @@
+{
+  "createdAt": "2025-03-24T07:31:34.647Z",
+  "updatedAt": "2025-03-25T08:52:03.831Z",
+  "id": "mzbScWHoXXiKFs4S",
+  "name": "Main Workflow",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk",
+          "mode": "list",
+          "cachedResultName": "Email_Deliverability_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -980,
+        480
+      ],
+      "id": "e9c28572-10a2-48a7-a636-441551dc35fc",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "723LV9KkD9NY2Bwt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Determine batch size for 4 groups\nconst batchSize = Math.ceil(items.length / 4);\n\n// Create 4 batches\nconst batch1 = items.slice(0, batchSize).map((item, index) => ({\n batch: \"Batch 1\",\n identifier: 1,\n row_number: index + 1,\n ...item.json\n}));\n\nconst batch2 = items.slice(batchSize, batchSize backups tmp_workflows 2).map((item, index) => ({\n batch: \"Batch 2\",\n identifier: 2,\n row_number: index + 1,\n ...item.json\n}));\n\nconst batch3 = items.slice(batchSize backups tmp_workflows 2, batchSize backups tmp_workflows 3).map((item, index) => ({\n batch: \"Batch 3\",\n identifier: 3,\n row_number: index + 1,\n ...item.json\n}));\n\nconst batch4 = items.slice(batchSize backups tmp_workflows 3).map((item, index) => ({\n batch: \"Batch 4\",\n identifier: 4,\n row_number: index + 1,\n ...item.json\n}));\n\n// Return all 4 batches separately\nreturn [\n { json: { batch: \"Batch 1\", data: batch1 } },\n { json: { batch: \"Batch 2\", data: batch2 } },\n { json: { batch: \"Batch 3\", data: batch3 } },\n { json: { batch: \"Batch 4\", data: batch4 } }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        480
+      ],
+      "id": "38b12f9f-f18f-47d6-9789-a2de86196089",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.batch }}",
+                    "rightValue": "Batch 1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "51876b02-d6cf-4b3b-a966-730ebf728180"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9276ff84-87c2-4492-80e8-80485ea1e0d5",
+                    "leftValue": "={{ $json.batch }}",
+                    "rightValue": "Batch 2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ff8bbfed-6305-4cb6-bf33-57341c56d492",
+                    "leftValue": "={{ $json.batch }}",
+                    "rightValue": "Batch 3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "49ba8b41-4a85-4b80-8055-111571fd2616",
+                    "leftValue": "={{ $json.batch }}",
+                    "rightValue": "Batch 4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -500,
+        580
+      ],
+      "id": "16394907-a9b5-491d-aedc-55e9bc47ac64",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.atozserver.cfd/webhook/168c4a39-c37f-4231-a5c9-2b55ecb7816e",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        320
+      ],
+      "id": "9c281f9c-c39f-43f7-83c4-ab4ee6ba318a",
+      "name": "WrokFlow-1",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.atozserver.cfd/webhook/dab787ca-ca42-4685-841d-2ea7b172b396",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        900
+      ],
+      "id": "05b609ee-ebd1-40fe-903f-38ffa90cb8cc",
+      "name": "Workflow-1",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.atozserver.cfd/webhook/dab787ca-ca42-4685-841d-2ea7b172b396",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        700
+      ],
+      "id": "32471bda-10fc-4c91-ab80-7d11f181da61",
+      "name": "Workflow-3",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1180,
+        480
+      ],
+      "id": "93065d70-ed3c-4887-9772-7f72b15863e0",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk",
+          "mode": "list",
+          "cachedResultName": "Email_Deliverability_Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nkaDMuTrBxUk-73Ml1l1onBXG4y7g0Rm1EfVq6bVxrk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "num": "={{ $json.num }}",
+            "id": "={{ $json.identifier }}"
+          },
+          "matchingColumns": [
+            "num"
+          ],
+          "schema": [
+            {
+              "id": "num",
+              "displayName": "num",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow-1",
+              "displayName": "workflow-1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow-2",
+              "displayName": "workflow-2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow-3",
+              "displayName": "workflow-3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflow-4",
+              "displayName": "workflow-4",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -440,
+        240
+      ],
+      "id": "5d0953db-f66b-4dbb-a92e-2879044889e0",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "723LV9KkD9NY2Bwt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        380
+      ],
+      "id": "c74e6364-3c6c-4881-86bb-fa730e7149c1",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.atozserver.cfd/webhook-test/168c4a39-c37f-4231-a5c9-2b55ecb7816e",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        520
+      ],
+      "id": "b38b37a0-fc45-4d52-83bb-6e76214a9966",
+      "name": "WrokFlow-2",
+      "retryOnFail": false
+    }
+  ],
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "WrokFlow-1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WrokFlow-2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Workflow-3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Workflow-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WrokFlow-1": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "253625b9-4465-4c71-b621-888e7d9717ca",
+  "triggerCount": 1,
+  "tags": []
+}

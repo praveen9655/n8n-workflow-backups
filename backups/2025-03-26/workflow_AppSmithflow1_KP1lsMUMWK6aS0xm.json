@@ -1,0 +1,950 @@
+{
+  "createdAt": "2025-03-25T04:32:55.833Z",
+  "updatedAt": "2025-03-26T01:49:14.013Z",
+  "id": "KP1lsMUMWK6aS0xm",
+  "name": "AppSmith_flow_1",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "site-verification",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -860,
+        -920
+      ],
+      "id": "84d84985-5e60-4fe8-bbb4-a5f97140212c",
+      "name": "Webhook",
+      "webhookId": "238f5403-de26-43eb-8023-e25d698c7e72"
+    },
+    {
+      "parameters": {
+        "useJson": true,
+        "claimsJson": "={\n \"iss\": \"vushesh-flow@vishesh-flow.iam.gserviceaccount.com\", \n \"sub\": \"{{ $json.query.AdminEmail }}\",\n \"scope\": \"https://www.googleapis.com/auth/admin.directory.domain https://www.googleapis.com/auth/siteverification\",\n \"aud\": \"https://oauth2.googleapis.com/token\",\n \"exp\": {{Math.floor(Date.now() / 1000) + 3600}},\n \"iat\": {{Math.floor(Date.now() / 1000)}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -920
+      ],
+      "id": "83538c30-8db8-4a57-a5b3-de836bb8b8f4",
+      "name": "JWT",
+      "credentials": {
+        "jwtAuth": {
+          "id": "h7GFqL9YcmodBhoT",
+          "name": "JWT Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA",
+          "mode": "list",
+          "cachedResultName": "Ayush_InternalDash",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -200,
+        -920
+      ],
+      "id": "cde00a50-d69f-46da-b814-de018227011d",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "723LV9KkD9NY2Bwt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://admin.googleapis.com/admin/directory/v1/customer/{{ $('Webhook').item.json.query.CustomerID }}/domains",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Fetch Access Token').item.json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "domainName",
+              "value": "={{ $json.Domains }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        380,
+        -840
+      ],
+      "id": "619119e6-7db5-46de-b0d9-0191a76ff27b",
+      "name": "Add Domain",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/siteVerification/v1/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Fetch Access Token').item.json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"site\": {\n \"type\": \"INET_DOMAIN\",\n \"identifier\": \"{{ $('Loop Over Items').item.json.Domains }}\"\n },\n \"verificationMethod\": \"DNS_TXT\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        -760
+      ],
+      "id": "22f1ac7e-68e1-4e3b-b0d9-9ae9d12ce4ca",
+      "name": "Verification Token Fetch",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth2.googleapis.com/token",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+            },
+            {
+              "name": "assertion",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a0309616-6010-4f2b-ad56-3480d49d46f8",
+      "name": "Fetch Access Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -420,
+        -920
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.cloudflare.com/client/v4/zones/{{ $('Loop Over Items').item.json['Zone ID'] }}/dns_records",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Auth-Email",
+              "value": "={{ $('Webhook').item.json.query.Cemail }}"
+            },
+            {
+              "name": "X-Auth-Key",
+              "value": "={{ $('Webhook').item.json.query.Ckey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"content\": \"{{ $('Verification Token Fetch').item.json.token }}\",\n \"name\": \"{{ $('Loop Over Items').item.json.Domains }}\",\n \"type\": \"TXT\",\n \"ttl\": 600\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        980,
+        -640
+      ],
+      "id": "954b643b-7231-4169-b16e-39a7387024fb",
+      "name": "DNS Record",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/siteVerification/v1/webResource?verificationMethod=DNS_TXT",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Fetch Access Token').item.json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"site\": {\n \"type\": \"INET_DOMAIN\",\n \"identifier\": \"{{ $('Loop Over Items').item.json.Domains }}\"\n },\n \"verificationMethod\": \"DNS_TXT\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1220,
+        -520
+      ],
+      "id": "39d80422-5580-4b66-839a-663cee76e9f0",
+      "name": "Verify",
+      "alwaysOutputData": false,
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        20,
+        -920
+      ],
+      "id": "4bde854a-589a-4339-b70d-80cb3d38d066",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        340
+      ],
+      "id": "5b767895-4c32-401d-952a-76151cdff2b0",
+      "name": "Wait",
+      "webhookId": "66e494a6-695f-4c7d-ae79-a04a704807d5"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA",
+          "mode": "list",
+          "cachedResultName": "Ayush_InternalDash",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Domains": "={{ $('Loop Over Items').item.json.Domains }}",
+            "Status": "Success"
+          },
+          "matchingColumns": [
+            "Domains"
+          ],
+          "schema": [
+            {
+              "id": "Domains",
+              "displayName": "Domains",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Zone ID",
+              "displayName": "Zone ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misc",
+              "displayName": "Misc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Verification link",
+              "displayName": "Verification link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1260,
+        100
+      ],
+      "id": "894a2be0-3ea7-431b-80fa-75513b932e8e",
+      "name": "Google Sheets1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA",
+          "mode": "list",
+          "cachedResultName": "Ayush_InternalDash",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Domains": "={{ $('Loop Over Items').item.json.Domains }}",
+            "Status": "DNS Record Error"
+          },
+          "matchingColumns": [
+            "Domains"
+          ],
+          "schema": [
+            {
+              "id": "Domains",
+              "displayName": "Domains",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Zone ID",
+              "displayName": "Zone ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misc",
+              "displayName": "Misc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Verification link",
+              "displayName": "Verification link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        840,
+        180
+      ],
+      "id": "340bfb3e-ed3d-486e-847c-a57fbaa7b205",
+      "name": "Google Sheets2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA",
+          "mode": "list",
+          "cachedResultName": "Ayush_InternalDash",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Domains": "={{ $('Loop Over Items').item.json.Domains }}",
+            "Status": "Verification Token Fetch Failed"
+          },
+          "matchingColumns": [
+            "Domains"
+          ],
+          "schema": [
+            {
+              "id": "Domains",
+              "displayName": "Domains",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Zone ID",
+              "displayName": "Zone ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misc",
+              "displayName": "Misc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Verification link",
+              "displayName": "Verification link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        580,
+        40
+      ],
+      "id": "fb9eba8c-2645-4e50-bae2-ad6ff339cbe0",
+      "name": "Google Sheets3"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1GIPPrxEErk0zKj5OyvWkynQ71Ueb-Lw7AGhpH2n2arI",
+          "mode": "list",
+          "cachedResultName": "Ayush_InternalDash_DomainBackup",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GIPPrxEErk0zKj5OyvWkynQ71Ueb-Lw7AGhpH2n2arI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GIPPrxEErk0zKj5OyvWkynQ71Ueb-Lw7AGhpH2n2arI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer ID": "={{ $('Webhook').item.json.query.CustomerID }}",
+            "Zone ID": "={{ $('Loop Over Items').item.json['Zone ID'] }}",
+            "Cloudflare Email": "={{ $('Webhook').item.json.query.Cemail }}",
+            "Cloudflare API": "={{ $('Webhook').item.json.query.Ckey }}",
+            "Domains": "={{ $('Loop Over Items').item.json.Domains }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Domains",
+              "displayName": "Domains",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Zone ID",
+              "displayName": "Zone ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cloudflare Email",
+              "displayName": "Cloudflare Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cloudflare API",
+              "displayName": "Cloudflare API",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer ID",
+              "displayName": "Customer ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -240,
+        -520
+      ],
+      "id": "b0579923-3c24-4648-b906-2b779ad39e80",
+      "name": "Google Sheets4"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA",
+          "mode": "list",
+          "cachedResultName": "Ayush_InternalDash",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UWfMvihb8YT7L7GiMu9knzw7DOnk_lAUW2BLBvFK1rA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Domains": "={{ $('Loop Over Items').item.json.Domains }}",
+            "Status": "Error Adding Domain"
+          },
+          "matchingColumns": [
+            "Domains"
+          ],
+          "schema": [
+            {
+              "id": "Domains",
+              "displayName": "Domains",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Zone ID",
+              "displayName": "Zone ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Misc",
+              "displayName": "Misc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Verification link",
+              "displayName": "Verification link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        300,
+        -120
+      ],
+      "id": "878cc215-9f79-404e-8b13-32bd4030eb51",
+      "name": "Google Sheets5"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "JWT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JWT": {
+      "main": [
+        [
+          {
+            "node": "Fetch Access Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        []
+      ]
+    },
+    "Add Domain": {
+      "main": [
+        [
+          {
+            "node": "Verification Token Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verification Token Fetch": {
+      "main": [
+        [
+          {
+            "node": "DNS Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Access Token": {
+      "main": [
+        []
+      ]
+    },
+    "DNS Record": {
+      "main": [
+        [
+          {
+            "node": "Verify",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Add Domain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets5": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "query": {
+            "AdminEmail": "dev@atozdemandgen.com"
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "6970c03e-4d31-4b62-a839-71f288a9cc0a",
+  "triggerCount": 0,
+  "tags": []
+}
