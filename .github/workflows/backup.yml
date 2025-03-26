@@ -1,0 +1,26 @@
+name: Weekly n8n Workflow Backup
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # Runs every Sunday at midnight UTC
+  workflow_dispatch:
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch Workflows from n8n
+        run: |
+          curl -X 'GET' "https://n8n.atozserver.cfd/api/v1/workflows" \
+          -H "accept: application/json" \
+          -H "X-N8N-API-KEY: ${{ secrets.N8N_API_KEY }}" \
+          -o workflows.json
+
+      - name: git push origin main
+        run: |
+          git config --global user.email "your-email@example.com"
+          git config --global user.name "n8n Backup Bot"
+          git add workflows.json
+          git commit -m "Weekly n8n workflow backup - $(date +'%Y-%m-%d')" || exit 0
+          git push origin main
